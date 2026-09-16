@@ -1,1 +1,98 @@
-<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JouwCarParts BMW</title><style>body{margin:0;background:#0e1114;color:#e8e2d6;font-family:Segoe UI,sans-serif;padding:28px}a{color:#e0c56a}h1{color:#c9a227}</style></head><body><h1>JouwCarParts BMW catalogus</h1><p>214 producten. Open een deel: foto downloaden, tekst kopieren.</p><ol><li><a href="deel-1.html">Deel 1 (1-27)</a></li><li><a href="deel-2.html">Deel 2 (28-54)</a></li><li><a href="deel-3.html">Deel 3 (55-81)</a></li><li><a href="deel-4.html">Deel 4 (82-108)</a></li><li><a href="deel-5.html">Deel 5 (109-135)</a></li><li><a href="deel-6.html">Deel 6 (136-162)</a></li><li><a href="deel-7.html">Deel 7 (163-189)</a></li><li><a href="deel-8.html">Deel 8 (190-214)</a></li></ol><p>Bron: Tiger Auto Parts — tigerautoparts.be</p></body></html>
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JouwCarParts — BMW onderdelen</title>
+<style>
+:root{--bg:#111;--card:#1c1c1c;--line:#333;--gold:#c9a227;--text:#f4efe6;--muted:#9a9488}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#0c0c0c;border-bottom:1px solid var(--line);padding:14px 16px}
+.wrap{max-width:1180px;margin:auto}
+h1{margin:0;font-size:22px;color:var(--gold)}
+.sub{color:var(--muted);font-size:13px;margin:4px 0 12px}
+.search{width:100%;padding:12px 14px;border-radius:8px;border:1px solid #444;background:#191919;color:var(--text);font-size:16px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:1px solid #444;background:#191919;color:var(--text);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13px}
+.chip.on{background:var(--gold);color:#111;border-color:var(--gold);font-weight:700}
+.count{color:var(--muted);font-size:13px;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:18px 16px 80px;max-width:1180px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column}
+.badge{display:inline-block;background:#2a2a2a;color:var(--gold);border-radius:999px;padding:2px 8px;font-size:11px;margin-bottom:8px}
+.card h2{font-size:14px;margin:0 0 8px;line-height:1.35;min-height:3.2em}
+.meta{color:var(--muted);font-size:12px;margin-bottom:10px}
+.btns{margin-top:auto}
+button,a.btn{display:inline-block;margin:0 4px 6px 0;border:0;border-radius:6px;padding:7px 10px;font-size:12px;cursor:pointer;text-decoration:none}
+a.btn{background:var(--gold);color:#111;font-weight:700}
+button{background:#2a2a2a;color:var(--gold)}
+section h3{max-width:1180px;margin:24px auto 0;padding:0 16px;color:var(--gold);font-size:18px}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<h1>JOUWCARPARTS</h1>
+<p class="sub">BMW onderdelen zoals bij Tiger: zoek op serie of model, of scroll naar beneden.</p>
+<input class="search" id="q" placeholder="Zoek 3 Serie, F10, voorbumper, SKU…">
+<div class="filters" id="series"></div>
+<div class="filters" id="models"></div>
+<div class="count"><span id="n">0</span> producten</div>
+</div>
+</header>
+<div id="app"></div>
+<script>
+let DATA=[], serie='', model='';
+const SERIES=['1 Serie','2 Serie','3 Serie','4 Serie','5 Serie','X5'];
+function chip(label, val){return `<button class="chip" data-v="${val}">${label}</button>`}
+function renderFilters(){
+  const models=[...new Set(DATA.map(x=>x.c).filter(Boolean))].sort();
+  document.getElementById('series').innerHTML = `<button class="chip${serie===''?' on':''}" data-g="s" data-v="">Alle series</button>` + SERIES.map(s=>`<button class="chip${serie===s?' on':''}" data-g="s" data-v="${s}">${s}</button>`).join('');
+  document.getElementById('models').innerHTML = `<button class="chip${model===''?' on':''}" data-g="m" data-v="">Alle modellen</button>` + models.map(m=>`<button class="chip${model===m?' on':''}" data-g="m" data-v="${m}">${m}</button>`).join('');
+}
+function copy(t){navigator.clipboard.writeText(t).catch(()=>{const i=document.createElement('textarea');i.value=t;document.body.appendChild(i);i.select();document.execCommand('copy');i.remove()})}
+function card(p){
+  const all=p.t+'\nMerk: BMW\nSerie: '+p.g+'\nModel: '+p.c+'\nJaren: '+p.y+'\nSKU: '+p.s+'\nPrijs: EUR '+p.p+'\nBron: '+p.u;
+  return `<article class="card" data-s="${p.g}" data-m="${p.c}" data-q="${(p.t+' '+p.g+' '+p.c+' '+p.s+' '+p.y).toLowerCase().replaceAll('"','')}">
+    <div class="badge">${p.g} · ${p.c||''}</div>
+    <h2>${p.t}</h2>
+    <div class="meta">${p.y||''}<br>SKU ${p.s} · € ${p.p}</div>
+    <div class="btns">
+      <a class="btn" href="${p.u}" target="_blank">Tiger-pagina</a>
+      <button data-c="${p.t.replaceAll('"','')}">Titel</button>
+      <button data-c="${p.s}">SKU</button>
+      <button data-c="${p.u}">URL</button>
+    </div>
+  </article>`;
+}
+function apply(){
+  const needle=(document.getElementById('q').value||'').toLowerCase();
+  let n=0;
+  document.querySelectorAll('.card').forEach(c=>{
+    const ok=(!serie||c.dataset.s===serie)&&(!model||c.dataset.m===model)&&(!needle||c.dataset.q.includes(needle));
+    c.style.display=ok?'':'none'; if(ok) n++;
+  });
+  document.querySelectorAll('section').forEach(sec=>{
+    const any=[...sec.querySelectorAll('.card')].some(c=>c.style.display!=='none');
+    sec.style.display=any?'':'none';
+  });
+  document.getElementById('n').textContent=n;
+}
+function draw(){
+  const groups={};
+  DATA.forEach(p=>{(groups[p.g]=groups[p.g]||[]).push(p)});
+  document.getElementById('app').innerHTML = SERIES.concat(['Overig']).filter(g=>groups[g]).map(g=>
+    `<section><h3>${g}</h3><div class="grid">${groups[g].map(card).join('')}</div></section>`
+  ).join('');
+  apply();
+}
+fetch('data.json').then(r=>r.json()).then(d=>{DATA=d; renderFilters(); draw();});
+document.getElementById('q').addEventListener('input', apply);
+document.addEventListener('click', e=>{
+  const f=e.target.closest('[data-g]');
+  if(f){ if(f.dataset.g==='s') serie=f.dataset.v; else model=f.dataset.v; renderFilters(); apply(); return; }
+  const b=e.target.closest('[data-c]');
+  if(b){ copy(b.getAttribute('data-c')||''); const o=b.textContent; b.textContent='Gekopieerd'; setTimeout(()=>b.textContent=o,900); }
+});
+</script>
+</body>
+</html>
