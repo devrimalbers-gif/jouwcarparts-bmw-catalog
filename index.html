@@ -6,73 +6,41 @@
 <title>JouwCarParts BMW</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b0b0b">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="JouwCarParts">
 <style>
-body{margin:0;background:#0b0b0b;color:#f4efe6;font-family:Arial,Helvetica,sans-serif}
-.wrap{max-width:980px;margin:auto;padding:16px}
-h1{color:#c9a227;margin:0 0 8px}
+body{margin:0;background:#0b0b0b;color:#f4efe6;font-family:Arial,sans-serif}
+.wrap{max-width:980px;margin:auto;padding:16px}h1{color:#c9a227}
 .search{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:2px solid #444;background:#111;color:#fff;font-size:16px;margin:8px 0 14px}
-.serie{margin:20px 0 8px;color:#c9a227}
-.item{background:#171717;border:1px solid #333;border-radius:10px;padding:10px;margin:0 0 8px}
-.item h2{margin:0 0 4px;font-size:15px}
-.meta{color:#9a9488;font-size:12px;margin:0 0 8px}
-button{background:#c9a227;color:#111;border:0;font-weight:800;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer}
-.hide{display:none!important}
-.box{border:2px solid #c9a227;border-radius:12px;padding:12px;margin:0 0 14px;background:#1a1a1a}
-</style>
-</head>
-<body>
-<div class="wrap">
+.serie{margin:20px 0 8px;color:#c9a227}.item{background:#171717;border:1px solid #333;border-radius:10px;padding:10px;margin:0 0 8px}
+.item h2{margin:0 0 4px;font-size:15px}.meta{color:#9a9488;font-size:12px;margin:0 0 8px}
+button{background:#c9a227;color:#111;border:0;font-weight:800;padding:8px 10px;border-radius:8px;cursor:pointer}
+.hide{display:none!important}.box{border:2px solid #c9a227;border-radius:12px;padding:12px;margin:0 0 14px;background:#1a1a1a}
+</style></head><body><div class="wrap">
 <h1>JOUWCARPARTS — BMW bumpers & bodykits</h1>
 <p id="count">Laden…</p>
-<div class="box">Vaste catalogus. Zoek op F21, E90, voorbumper of SKU. Telefoon: Deel → Zet op beginscherm.</div>
+<div class="box">Vaste GitHub-catalogus. Zoek op F21, E90 of SKU. Telefoon: Deel → Zet op beginscherm.</div>
 <input class="search" id="q" placeholder="Typ F21, E90, voorbumper, bodykit, SKU…">
-<div id="list"></div>
-</div>
+<div id="list"></div></div>
 <script>
-const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]));
-async function boot() {
-const r = await fetch('./catalog-all.json');
-if (!r.ok) throw new Error('catalog-all.json');
-const DATA = (await r.json()).map(x => ({titel:x.t,serie:x.s,model:x.m,sku:x.k}));
-document.getElementById('count').textContent = DATA.length + ' onderdelen';
-const list = document.getElementById('list');
-let last = '';
-for (const row of DATA) {
-  if (row.serie !== last) {
-    list.insertAdjacentHTML('beforeend', '<h2 class="serie">' + esc(row.serie) + '</h2>');
-    last = row.serie;
-  }
-  const q = (row.titel + ' ' + row.serie + ' ' + row.model + ' ' + row.sku).toLowerCase();
-  list.insertAdjacentHTML('beforeend',
-    '<article class="item" data-q="' + esc(q) + '"><h2>' + esc(row.titel) + '</h2>' +
-    '<p class="meta">' + esc(row.serie) + ' · ' + esc(row.model) + ' · SKU ' + esc(row.sku) + '</p>' +
-    '<button type="button" data-copy="' + esc(row.titel + ' | SKU ' + row.sku) + '">KOPIEER INFO</button></article>');
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]));
+async function boot(){
+ const DATA=[];
+ for(const f of ['d1.json','d2.json','d3.json','d4.json']){
+  const r=await fetch('./'+f);
+  if(!r.ok) throw new Error(f);
+  DATA.push(...(await r.json()).map(x=>({titel:x.t,serie:x.s,model:x.m,sku:x.k})));
+ }
+ document.getElementById('count').textContent=DATA.length+' onderdelen';
+ const list=document.getElementById('list'); let last='';
+ for(const row of DATA){
+  if(row.serie!==last){list.insertAdjacentHTML('beforeend','<h2 class="serie">'+esc(row.serie)+'</h2>');last=row.serie;}
+  const q=(row.titel+' '+row.serie+' '+row.model+' '+row.sku).toLowerCase();
+  list.insertAdjacentHTML('beforeend','<article class="item" data-q="'+esc(q)+'"><h2>'+esc(row.titel)+'</h2><p class="meta">'+esc(row.serie)+' · '+esc(row.model)+' · SKU '+esc(row.sku)+'</p><button type="button" data-copy="'+esc(row.titel+' | SKU '+row.sku)+'">KOPIEER INFO</button></article>');
+ }
+ list.onclick=e=>{const b=e.target.closest('button[data-copy]');if(!b)return;navigator.clipboard.writeText(b.getAttribute('data-copy')).then(()=>{b.textContent='GEKOPIEERD';setTimeout(()=>b.textContent='KOPIEER INFO',900);});};
+ const q=document.getElementById('q');
+ q.oninput=()=>{const n=(q.value||'').toLowerCase();
+  document.querySelectorAll('.item').forEach(el=>el.classList.toggle('hide',!!(n&&!(el.dataset.q||'').includes(n))));
+  document.querySelectorAll('.serie').forEach(h=>{let p=h.nextElementSibling,show=false;while(p&&p.classList.contains('item')){if(!p.classList.contains('hide'))show=true;p=p.nextElementSibling;}h.style.display=show?'':'none';});};
 }
-list.addEventListener('click', e => {
-  const b = e.target.closest('button[data-copy]');
-  if (!b) return;
-  navigator.clipboard.writeText(b.getAttribute('data-copy')).then(() => {
-    b.textContent = 'GEKOPIEERD';
-    setTimeout(() => b.textContent = 'KOPIEER INFO', 900);
-  });
-});
-const q = document.getElementById('q');
-q.oninput = () => {
-  const n = (q.value || '').toLowerCase();
-  document.querySelectorAll('.item').forEach(el => el.classList.toggle('hide', !!(n && !(el.dataset.q || '').includes(n))));
-  document.querySelectorAll('.serie').forEach(h => {
-    let p = h.nextElementSibling, show = false;
-    while (p && p.classList.contains('item')) {
-      if (!p.classList.contains('hide')) show = true;
-      p = p.nextElementSibling;
-    }
-    h.style.display = show ? '' : 'none';
-  });
-};
-}
-boot().catch(e => { document.getElementById('count').textContent = 'Fout: ' + e.message; });
-</script>
-</body>
-</html>
+boot().catch(e=>{document.getElementById('count').textContent='Fout: '+e.message;});
+</script></body></html>
